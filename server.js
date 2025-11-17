@@ -38,6 +38,15 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Configure nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
