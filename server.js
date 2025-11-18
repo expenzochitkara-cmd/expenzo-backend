@@ -10,7 +10,6 @@ import MarketplaceItem from './models/MarketplaceItem.js';
 import Job from './models/Job.js';
 import BillGroup from './models/BillGroup.js';
 import BudgetTracker from './models/BudgetTracker.js';
-import { marketplaceItems } from './data/items.js';
 import { 
   registerValidation, 
   loginValidation, 
