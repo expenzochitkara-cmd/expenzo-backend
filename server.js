@@ -26,7 +26,6 @@ import { authenticateToken, optionalAuth } from './middleware/auth.js';
 
 dotenv.config();
 
-// Connect to MongoDB
 connectDB();
 
 const app = express();
@@ -36,7 +35,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
+app.use('/api/', apiLimiter); 
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -142,7 +141,7 @@ app.post('/api/marketplace/items', authenticateToken, marketplaceItemValidation,
   }
 });
 
-// GET /api/marketplace/items/:id - Get single item details
+
 app.get('/api/marketplace/items/:id', optionalAuth, async (req, res) => {
   try {
     const item = await MarketplaceItem.findById(req.params.id).lean();
@@ -161,7 +160,7 @@ app.get('/api/marketplace/items/:id', optionalAuth, async (req, res) => {
   }
 });
 
-// PUT /api/marketplace/items/:id - Update marketplace item
+
 app.put('/api/marketplace/items/:id', authenticateToken, marketplaceItemValidation, validate, async (req, res) => {
   try {
     const item = await MarketplaceItem.findById(req.params.id);
@@ -170,14 +169,14 @@ app.put('/api/marketplace/items/:id', authenticateToken, marketplaceItemValidati
       return res.status(404).json({ message: 'Item not found' });
     }
 
-    // Check if user is the owner
+  
     if (item.userId.toString() !== req.user.userId.toString()) {
       return res.status(403).json({ message: 'You are not authorized to update this item' });
     }
 
     const { title, description, price, image, condition, category, sellerPhone } = req.body;
 
-    // Update item
+  
     item.title = title;
     item.description = description;
     item.price = price;
@@ -201,7 +200,7 @@ app.put('/api/marketplace/items/:id', authenticateToken, marketplaceItemValidati
   }
 });
 
-// DELETE /api/marketplace/items/:id - Delete marketplace item
+
 app.delete('/api/marketplace/items/:id', authenticateToken, async (req, res) => {
   try {
     const item = await MarketplaceItem.findById(req.params.id);
@@ -210,7 +209,7 @@ app.delete('/api/marketplace/items/:id', authenticateToken, async (req, res) => 
       return res.status(404).json({ message: 'Item not found' });
     }
 
-    // Check if user is the owner
+
     if (item.userId.toString() !== req.user.userId.toString()) {
       return res.status(403).json({ message: 'You are not authorized to delete this item' });
     }
@@ -223,7 +222,7 @@ app.delete('/api/marketplace/items/:id', authenticateToken, async (req, res) => 
   }
 });
 
-// GET /api/marketplace/my-items - Get user's own listings
+
 app.get('/api/marketplace/my-items', authenticateToken, async (req, res) => {
   try {
     const items = await MarketplaceItem.find({ userId: req.user.userId })
@@ -784,7 +783,7 @@ app.post('/api/auth/verify-otp', authLimiter, otpValidation, validate, async (re
         <p>Your account has been successfully created and verified!</p>
         <p>You can now start using ExPeNzO to manage your finances, explore the marketplace, and much more.</p>
         <div style="margin: 30px 0;">
-          <a href="http://localhost:5173" 
+          <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" 
              style="background-color: #1f2937; color: white; padding: 12px 24px; 
                     text-decoration: none; border-radius: 5px; display: inline-block;">
             Get Started
@@ -933,11 +932,11 @@ app.post('/api/auth/forgot-password', authLimiter, forgotPasswordValidation, val
 
     // Store reset token in user document
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 3600000; // 1 hour
+    user.resetPasswordExpire = Date.now() + 3600000; 
     await user.save();
 
     // Send email with reset link
-    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1f2937;">Password Reset Request</h2>
